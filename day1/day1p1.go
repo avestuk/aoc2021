@@ -7,14 +7,12 @@ import (
 	"strconv"
 )
 
-func Day1(f string) int {
-	// Handle reading from a file
-	file, err := os.Open(f)
-	if err != nil {
-		fmt.Printf("unable to open file, got err: %s\n", err)
-	}
+func Day1P1(f string) (int, error) {
 
-	scanner := bufio.NewScanner(file)
+	scanner, err := fileReader(f)
+	if err != nil {
+		return 0, err
+	}
 
 	var (
 		previousMeasurement int
@@ -24,7 +22,7 @@ func Day1(f string) int {
 	for scanner.Scan() {
 		measurement, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			fmt.Printf("could not parse: %s to int, got err: %s\n", scanner.Text(), err)
+			return 0, fmt.Errorf("could not parse: %s to int, got err: %s", scanner.Text(), err)
 		}
 
 		if isFirst {
@@ -40,9 +38,17 @@ func Day1(f string) int {
 		previousMeasurement = measurement
 	}
 
-	fmt.Printf("increases: %d", increases)
+	return increases, nil
+}
 
-	return increases
+func fileReader(f string) (*bufio.Scanner, error) {
+	// Handle reading from a file
+	file, err := os.Open(f)
+	if err != nil {
+		return nil, fmt.Errorf("unable to open file, got err: %w", err)
+	}
+
+	return bufio.NewScanner(file), nil
 }
 
 //--- Day 1: Sonar Sweep ---

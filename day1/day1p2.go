@@ -24,20 +24,14 @@ func Day1P2(f string) (int, error) {
 			return 0, fmt.Errorf("could not parse: %s to int, got err: %s", scanner.Text(), err)
 		}
 
-		switch fillCounter {
-		case 0:
-			slidingWindow[fillCounter] = append(slidingWindow[fillCounter], measurement)
-		case 1:
-			slidingWindow[fillCounter-1] = append(slidingWindow[fillCounter-1], measurement)
-			slidingWindow[fillCounter] = append(slidingWindow[fillCounter], measurement)
-		case 2:
-			slidingWindow[fillCounter-2] = append(slidingWindow[fillCounter-2], measurement)
-			slidingWindow[fillCounter-1] = append(slidingWindow[fillCounter-1], measurement)
-			slidingWindow[fillCounter] = append(slidingWindow[fillCounter], measurement)
-		case 3:
-			slidingWindow[fillCounter-2] = append(slidingWindow[fillCounter-2], measurement)
-			slidingWindow[fillCounter-1] = append(slidingWindow[fillCounter-1], measurement)
-			slidingWindow[fillCounter] = append(slidingWindow[fillCounter], measurement)
+		// Populate each sliding window to a maximum of 3 measurements
+		for i := fillCounter; i >= 0; i-- {
+			if len(slidingWindow[i]) < 3 {
+				slidingWindow[i] = append(slidingWindow[i], measurement)
+			}
+		}
+
+		if fillCounter == 3 {
 
 			// If we could not fill window 2 then stop
 			if len(slidingWindow[1]) != 3 {

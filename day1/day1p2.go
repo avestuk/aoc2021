@@ -7,7 +7,8 @@ import (
 
 func Day1P2(f string) (int, error) {
 
-	scanner, err := fileReader(f)
+	scanner, close, err := fileReader(f)
+	defer close()
 	if err != nil {
 		return 0, err
 	}

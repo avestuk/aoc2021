@@ -9,7 +9,8 @@ import (
 
 func Day1P1(f string) (int, error) {
 
-	scanner, err := fileReader(f)
+	scanner, close, err := fileReader(f)
+	defer close()
 	if err != nil {
 		return 0, err
 	}
@@ -41,14 +42,14 @@ func Day1P1(f string) (int, error) {
 	return increases, nil
 }
 
-func fileReader(f string) (*bufio.Scanner, error) {
+func fileReader(f string) (*bufio.Scanner, func() error, error) {
 	// Handle reading from a file
 	file, err := os.Open(f)
 	if err != nil {
-		return nil, fmt.Errorf("unable to open file, got err: %w", err)
+		return nil, nil, fmt.Errorf("unable to open file, got err: %w", err)
 	}
 
-	return bufio.NewScanner(file), nil
+	return bufio.NewScanner(file), file.Close, err
 }
 
 //--- Day 1: Sonar Sweep ---

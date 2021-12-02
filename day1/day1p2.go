@@ -10,81 +10,14 @@ type window struct {
 	increase     int
 }
 
-// My first implementation
-func Day1P2(f string) (int, error) {
-
-	scanner, close, err := fileReader(f)
-	defer close()
-	if err != nil {
-		return 0, err
-	}
-
-	slidingWindow := make([][]int, 4)
-	var (
-		fillCounter int
-		increases   int
-	)
-
-	for scanner.Scan() {
-		measurement, err := strconv.Atoi(scanner.Text())
-		if err != nil {
-			return 0, fmt.Errorf("could not parse: %s to int, got err: %s", scanner.Text(), err)
-		}
-
-		// Populate each sliding window to a maximum of 3 measurements
-		for i := fillCounter; i >= 0; i-- {
-			if len(slidingWindow[i]) < 3 {
-				slidingWindow[i] = append(slidingWindow[i], measurement)
-			}
-		}
-
-		if fillCounter == 3 {
-
-			// If we could not fill window 2 then stop
-			if len(slidingWindow[1]) != 3 {
-				return increases, nil
-			}
-
-			// Compare window 1 -> window 2
-			var (
-				sum1 int
-				sum2 int
-			)
-
-			for _, m := range slidingWindow[0] {
-				sum1 += m
-			}
-
-			for _, m := range slidingWindow[1] {
-				sum2 += m
-			}
-
-			if sum2 > sum1 {
-				increases++
-			}
-
-			// Remove the first slidingWindow
-			slidingWindow = append(slidingWindow[1:], make([]int, 0))
-			continue
-		}
-
-		fillCounter++
-
-	}
-
-	return increases, nil
-}
-
 // A second implementation inspired by
 // https://github.com/MatthewJamesBoyle/adventOfCode2021/blob/main/day1/puzzle2.go
-func Day1P22(f string) (int, error) {
+func Day1P22(f string) {
 	scanner, close, err := fileReader(f)
 	defer close()
 	if err != nil {
 		return 0, err
 	}
-
-	w := &window{}
 
 	for scanner.Scan() {
 		measurement, err := strconv.Atoi(scanner.Text())
@@ -92,37 +25,7 @@ func Day1P22(f string) (int, error) {
 			return 0, fmt.Errorf("could not parse: %s to int, got err: %s", scanner.Text(), err)
 		}
 
-		w.populate(measurement)
 	}
-
-	return w.increase, nil
-}
-
-func (w *window) populate(m int) {
-	previousTotal := 0
-	// If there are 3 measurements in the window take the total and set it
-	// as the previous total. Then truncate the window
-	if len(w.measurements) == 3 {
-		previousTotal = w.sum()
-		w.measurements = w.measurements[1:]
-	}
-
-	// Add the new measurement to the window and compare the new total with
-	// the old total
-	w.measurements = append(w.measurements, m)
-
-	if previousTotal != 0 && w.sum() > previousTotal {
-		w.increase++
-	}
-}
-
-func (w *window) sum() int {
-	sum := 0
-	for _, m := range w.measurements {
-		sum += m
-	}
-
-	return sum
 }
 
 //--- Part Two ---

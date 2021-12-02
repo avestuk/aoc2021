@@ -5,6 +5,12 @@ import (
 	"strconv"
 )
 
+type window struct {
+	measurements []int
+	increase     int
+}
+
+// My first implementation
 func Day1P2(f string) (int, error) {
 
 	scanner, close, err := fileReader(f)
@@ -67,6 +73,56 @@ func Day1P2(f string) (int, error) {
 	}
 
 	return increases, nil
+}
+
+// A second implementation inspired by
+// https://github.com/MatthewJamesBoyle/adventOfCode2021/blob/main/day1/puzzle2.go
+func Day1P22(f string) (int, error) {
+	scanner, close, err := fileReader(f)
+	defer close()
+	if err != nil {
+		return 0, err
+	}
+
+	w := &window{}
+
+	for scanner.Scan() {
+		measurement, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			return 0, fmt.Errorf("could not parse: %s to int, got err: %s", scanner.Text(), err)
+		}
+
+		w.populate(measurement)
+	}
+
+	return w.increase, nil
+}
+
+func (w *window) populate(m int) {
+	previousTotal := 0
+	// If there are 3 measurements in the window take the total and set it
+	// as the previous total. Then truncate the window
+	if len(w.measurements) == 3 {
+		previousTotal = w.sum()
+		w.measurements = w.measurements[1:]
+	}
+
+	// Add the new measurement to the window and compare the new total with
+	// the old total
+	w.measurements = append(w.measurements, m)
+
+	if previousTotal != 0 && w.sum() > previousTotal {
+		w.increase++
+	}
+}
+
+func (w *window) sum() int {
+	sum := 0
+	for _, m := range w.measurements {
+		sum += m
+	}
+
+	return sum
 }
 
 //--- Part Two ---

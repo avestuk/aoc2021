@@ -12,7 +12,7 @@ func main() {
 	)
 
 	//count, err := day1.Day1P1(dayOneInput)
-	count, err := day1.Day1P2(dayOneInput)
+	count, err := day1.Day1P22(dayOneInput)
 	if err != nil {
 		fmt.Printf("got err: %s\n", err)
 		return

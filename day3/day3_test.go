@@ -1,6 +1,10 @@
 package day3
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 // Gamma rate is the most popular bit from left to right
 // Epsilon rate is the least popular bit from left to right
@@ -12,35 +16,31 @@ import "testing"
 
 func TestParseInput(t *testing.T) {
 
-	tests := map[string]struct {
-		Input       []string
-		wantGamma   string
-		wantEpsilon string
-	}{
-		"simple case": {
-
-			Input:       []string{"00100"},
-			wantGamma:   "00100",
-			wantEpsilon: "11011",
-		},
-		"Double input": {
-
-			Input:       []string{"00100", "11011", "11011"},
-			wantGamma:   "11011",
-			wantEpsilon: "00100",
-		},
+	input := []string{
+		"00100",
+		"11110",
+		"10110",
+		"10111",
+		"10101",
+		"01111",
+		"00111",
+		"11100",
+		"10000",
+		"11001",
+		"00010",
+		"01010",
 	}
+	wantOxygen := "10111"
+	wantCO := "01010"
 
-	for name, test := range tests {
-		gotGamma, gotEpsilon := ParseInput(test.Input)
+	gotOxygen := ParseInput(input, 0, true)
+	gotCO := ParseInput(input, 0, false)
 
-		if gotGamma != test.wantGamma {
-			t.Errorf("%s: gotGamma: %s != wantGamma: %s", name, gotGamma, test.wantGamma)
-		}
-		if gotEpsilon != test.wantEpsilon {
-			t.Errorf("%s: gotEpsilon: %s != wantEpsilon: %s", name, gotEpsilon, test.wantEpsilon)
-		}
-
+	if gotOxygen != wantOxygen {
+		t.Errorf("gotOxygen: %s != wantOxygen: %s", gotOxygen, wantOxygen)
+	}
+	if gotCO != wantCO {
+		t.Errorf("gotCO: %s != wantCO: %s", gotCO, wantCO)
 	}
 }
 
@@ -60,9 +60,68 @@ func TestBinaryStringToInt(t *testing.T) {
 func TestDay3P1(t *testing.T) {
 	got := Day3P1("./day3_test.txt")
 
-	want := int64(198)
+	want := int64(230)
 
 	if got != want {
 		t.Errorf("got: %d != %d", got, want)
 	}
+}
+
+func TestReturnRune(t *testing.T) {
+	tests := []struct {
+		name       string
+		m          map[rune]int
+		returnHigh bool
+		want       rune
+	}{
+		{
+			name:       "return one",
+			m:          map[rune]int{'0': 10, '1': 100},
+			returnHigh: true,
+			want:       '1',
+		},
+		{
+			name:       "tie break one",
+			m:          map[rune]int{'0': 10, '1': 10},
+			returnHigh: true,
+			want:       '1',
+		},
+		{
+			name: "return zero",
+			m:    map[rune]int{'0': 10, '1': 100},
+			want: '0',
+		},
+		{
+			name: "tie break zero",
+			m:    map[rune]int{'0': 10, '1': 10},
+			want: '0',
+		},
+	}
+
+	for _, test := range tests {
+
+		gotRune := returnRune(test.m, test.returnHigh)
+
+		if gotRune != test.want {
+			t.Errorf("%s: %c != %c", test.name, gotRune, test.want)
+		}
+	}
+
+}
+
+func TestFilter(t *testing.T) {
+
+	input := []string{
+		"11011",
+		"11011",
+		"10011",
+		"10011",
+		"11011",
+	}
+
+	got := filter(input, 1, '0')
+
+	require.Len(t, got, 2)
+	require.Equal(t, "10011", got[0])
+
 }

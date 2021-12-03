@@ -20,54 +20,44 @@ func Day3P1(f string) int64 {
 		input = append(input, scanner.Text())
 	}
 
-	g, e := ParseInput(input)
+	o := ParseInput(input, 0, true)
+	c := ParseInput(input, 0, false)
 
-	gamma, err := BinaryStringToInt(g)
+	oxygen, err := BinaryStringToInt(o)
 	if err != nil {
 		fmt.Println(err)
 		return 0
 	}
 
-	epsilon, err := BinaryStringToInt(e)
+	co2, err := BinaryStringToInt(c)
 	if err != nil {
 		fmt.Println(err)
 		return 0
 	}
 
-	return gamma * epsilon
+	return oxygen * co2
 }
 
-func ParseInput(input []string) (string, string) {
-
-	popularity := make([]map[rune]int, len(input[0]))
-	for i := 0; i < len(input[0]); i++ {
-		popularity[i] = map[rune]int{}
-	}
-
-	//popularity := []map[rune]int{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}}
-	//popularity := make([]map[rune]int, 2, 10)
-
+func ParseInput(input []string, byteCounter int, findOxy bool) string {
+	// Loop over our input
+	// For each first byte determine the least and most popular
+	popularity := make(map[rune]int)
 	for _, s := range input {
-		for i, c := range s {
-			popularity[i][c] += 1
-		}
+		popularity[[]rune(s)[byteCounter]] += 1
 	}
 
-	var (
-		g string
-		e string
-	)
-	for _, popMap := range popularity {
-		if popMap['0'] > popMap['1'] {
-			g = g + "0"
-			e = e + "1"
-		} else {
-			g = g + "1"
-			e = e + "0"
-		}
+	// Determine the most popular value
+	mostPopular := returnRune(popularity, findOxy)
+
+	// Filter
+	sived := filter(input, byteCounter, mostPopular)
+
+	if len(sived) > 1 {
+		byteCounter += 1
+		return ParseInput(sived, byteCounter, findOxy)
 	}
 
-	return g, e
+	return sived[0]
 }
 
 func BinaryStringToInt(s string) (int64, error) {
@@ -82,4 +72,31 @@ func fileReader(f string) (*bufio.Scanner, func() error, error) {
 	}
 
 	return bufio.NewScanner(file), file.Close, err
+}
+
+func returnRune(popularity map[rune]int, returnHigh bool) rune {
+	zeroCount := popularity['0']
+	oneCount := popularity['1']
+
+	if returnHigh {
+		if oneCount >= zeroCount {
+			return '1'
+		}
+		return '0'
+	}
+	if zeroCount <= oneCount {
+		return '0'
+	}
+	return '1'
+}
+
+func filter(input []string, byteCounter int, mostPopular rune) []string {
+	sived := []string{}
+	for _, s := range input {
+		if []rune(s)[byteCounter] == mostPopular {
+			sived = append(sived, s)
+		}
+	}
+
+	return sived
 }

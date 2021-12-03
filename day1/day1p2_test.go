@@ -6,6 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// How do we start something like this?
+// Add measurements to a collection
+// Make the collection handle the "slide"
+// When the window slides we need to know whether the new windows total exceeds the old total
+
 func TestAddMeasurement(t *testing.T) {
 	// Check that we can add measurements
 	measurements := []int{}

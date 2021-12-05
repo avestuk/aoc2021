@@ -1,29 +1,151 @@
-package main
+package day4
 
-import "testing"
+import (
+	"testing"
 
+	"github.com/stretchr/testify/require"
+)
+
+// Read input
 func TestDrawNumbers(t *testing.T) {
-	input := []string{"7", "4", "9", "5", "11", "17", "23", "2", "0", "14", "21"}
+	b := &Bingo{
+		drawnIndex: 0,
+		numbers:    []string{"7", "4", "9", "5", "11", "17", "23", "2", "0", "14", "21"},
+	}
 
 	want := []string{"7", "4", "9", "5", "11"}
 
-	got := DrawnNumbers(input)
-
-	if got != want {
-		t.Errorf("got: %s, want: %s", got, want)
+	var got []string
+	for i := 0; i < 5; i++ {
+		n, err := b.DrawNumbers()
+		require.NoError(t, err)
+		got = append(got, n)
 	}
+	require.Equal(t, want, got)
 
 	want = []string{"17", "23", "2", "0", "14", "21"}
-	got = DrawnNumbers(want)
-
-	if got != want {
-		t.Errorf("got: %s, want: %s", got, want)
+	var got2 []string
+	for i := 0; i < 6; i++ {
+		n, err := b.DrawNumbers()
+		require.NoError(t, err)
+		got2 = append(got2, n)
 	}
+
+	require.Equal(t, want, got2)
+}
+
+func TestCheckHorizontal(t *testing.T) {
+	numbers := []string{"22", "13", "17", "11", "0"}
+	wantBoard := Board{
+		[]string{"22", "13", "17", "11", "0"},
+		[]string{"8", "2", "23", "4", "4"},
+		[]string{"21", " 9", "14", "16", "7"},
+		[]string{"6", "10", "3", "18", "5"},
+		[]string{"1", "12", "20", "15", "9"},
+	}
+
+	require.True(t, CheckHorizontal(wantBoard, numbers))
+
+	numbers = []string{"17", "23", "14", "3", "20"}
+	require.True(t, CheckHorizontal(wantBoard, numbers))
+}
+
+func TestVertical(t *testing.T) {
+	numbers := []string{"17", "23", "14", "3", "20"}
+	wantBoard := Board{
+		[]string{"22", "13", "17", "11", "0"},
+		[]string{"8", "2", "23", "4", "4"},
+		[]string{"21", "9", "14", "16", "7"},
+		[]string{"6", "10", "3", "18", "5"},
+		[]string{"1", "12", "20", "15", "9"},
+	}
+
+	require.True(t, CheckVertical(wantBoard, numbers, []int{2}))
+}
+
+func TestParseInput(t *testing.T) {
+
+	input, boards, err := ParseInput("./day4_test.txt")
+	require.NoError(t, err)
+
+	require.Len(t, input, 27)
+	wantBoards := Boards{
+		Board{
+			[]string{"22", "13", "17", "11", "0"},
+			[]string{"8", "2", "23", "4", "24"},
+			[]string{"21", "9", "14", "16", "7"},
+			[]string{"6", "10", "3", "18", "5"},
+			[]string{"1", "12", "20", "15", "19"},
+		},
+		{
+			[]string{"3", "15", "0", "2", "22"},
+			[]string{"9", "18", "13", "17", "5"},
+			[]string{"19", "8", "7", "25", "23"},
+			[]string{"20", "11", "10", "24", "4"},
+			[]string{"14", "21", "16", "12", "6"},
+		},
+		{
+			[]string{"14", "21", "17", "24", "4"},
+			[]string{"10", "16", "15", "9", "19"},
+			[]string{"18", "8", "23", "26", "20"},
+			[]string{"22", "11", "13", "6", "5"},
+			[]string{"2", "0", "12", "3", "7"},
+		},
+	}
+
+	for i, gb := range boards {
+		for j, row := range gb {
+			require.Equal(t, wantBoards[i][j], row)
+		}
+	}
+
+	require.Equal(t, wantBoards, boards)
+}
+
+func TestCalculateScore(t *testing.T) {
+	input, _, err := ParseInput("./day4_test.txt")
+	require.NoError(t, err)
+
+	b := &Bingo{
+		drawnIndex: 12,
+		numbers:    input,
+	}
+
+	board := Board{
+		[]string{"14", "21", "17", "24", "4"},
+		[]string{"10", "16", "15", "9", "19"},
+		[]string{"18", "8", "23", "26", "20"},
+		[]string{"22", "11", "13", "6", "5"},
+		[]string{"2", "0", "12", "3", "7"},
+	}
+
+	wantScore := 4512
+
+	gotScore, err := b.CalculateScore(board)
+	require.NoError(t, err)
+
+	require.Equal(t, wantScore, gotScore)
 
 }
 
-// Read input in sets of 5
-// Check for complete rows of 5
+func TestDay4P1(t *testing.T) {
+	gotScore, err := Day4P1("./day4_test.txt")
+	require.NoError(t, err)
+	require.Equal(t, 4512, gotScore)
+
+	// Sum values
+	// []int len: 13, cap: 16, [10,16,15,19,18,8,26,20,22,13,6,12,3]
+}
+
+func TestDay4P2(t *testing.T) {
+	gotScore, err := Day4P2("./day4_test.txt")
+	require.NoError(t, err)
+	require.Equal(t, 1924, gotScore)
+
+	// Sum values
+	// []int len: 13, cap: 16, [10,16,15,19,18,8,26,20,22,13,6,12,3]
+}
+
 // Continue
 // When a winner is found find all the "unmarked" numbers on the winning board(s)
 
